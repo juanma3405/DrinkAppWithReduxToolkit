@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import DrinkOfTheDay from "./components/DrinkOfTheDay.js";
+import DrinkList from "./components/DrinkList.js";
+import SearchFailed from "./components/SearchFailed.js";
+import Error from "./components/Error.js";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRandomDrink } from "./store/randomDrink-actions.js";
 
 function App() {
+  const drinks = useSelector((state) => state.search.drinks);
+  const selectedDrink = useSelector((state) => state.chosenDrink.drink);
+  const searchFailed = useSelector((state) => state.searchFailed.searchFailed);
+  const error = useSelector((state) => state.error.error);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchRandomDrink());
+  }, [dispatch]);
+
+  if (error) {
+    return <Error></Error>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {searchFailed && <SearchFailed />}
+      {(drinks.length === 0 || selectedDrink) && !searchFailed && (
+        <DrinkOfTheDay />
+      )}
+      {drinks.length > 0 && !selectedDrink && !searchFailed && <DrinkList />}
+    </>
   );
 }
 
